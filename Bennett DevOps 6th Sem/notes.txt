@@ -1,0 +1,53 @@
+1. Create node js project
+  - npm init
+  - npm init -y
+
+2. Install express
+  - npm install express --save
+
+3. Start node server
+  - node app.js
+
+4. Show all process in docker
+  -> docker ps -a
+
+5. Show all running process in docker
+  -> docker ps
+
+6. Build image
+  -> docker build .
+- Build image with a name
+  -> docker build -t docker-node-app .
+
+7. Remove image
+  -> docker image rm imageName
+
+8. Build and Run container
+  -> docker run -p 3000:3000 --name node-app docker-node-app
+  - -p for port number
+  - node-app container : name
+  - docker-node-app : image name
+
+  -> docker run -d -p 3000:3000 --name node-app docker-node-app
+  - -d : detached mode
+
+  -> docker stop container_name
+  - to stop the docker
+
+9. Remove container
+  -> docker rm container_name
+  -> docker rm container_name -f
+  - -f is for forcefully removing container
+
+10. Get inside docker working directory
+  -> docker exec -it node-app bash
+
+
+Bind Mount volume and Sync code
+
+For windows command prompt
+- docker run -v %cd%:/app -p 3000:3000 -d --name node-app docker-node-app
+
+For windows powershell / mac / linux
+- docker run -v ${pwd}:/app -p 3000:3000 -d --name node-app docker-node-app
+
