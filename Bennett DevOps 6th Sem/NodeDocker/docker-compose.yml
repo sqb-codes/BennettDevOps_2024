@@ -1,0 +1,14 @@
+version: '3'
+services:
+  # image name
+  node-app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app:ro  # sync volumes
+      - /app/node_modules  # anonymous volumes
+    environment:
+      - PORT=3000
+    # env_file:
+    #   - ./.env

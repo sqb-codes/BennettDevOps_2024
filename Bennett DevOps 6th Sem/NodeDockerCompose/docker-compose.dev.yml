@@ -1,0 +1,10 @@
+version: '3'
+services:
+  # image name
+  node-app:
+    volumes:
+      - ./:/app:ro  # sync volumes
+      - /app/node_modules  # anonymous volumes
+    environment:
+      - NODE_ENV=development
+    command: npm run dev

@@ -25,7 +25,7 @@ ENV PORT 3000
 EXPOSE $PORT
 
 # CMD [ "executable" ] - run the container
-# CMD ["node", "app.js"]
+CMD ["node", "app.js"]
 
 # for dev environment
-CMD ["npm", "run", "dev"]
+# CMD ["npm", "run", "dev"]
