@@ -11,6 +11,12 @@ COPY package.json .
 # RUN - it builds the image = compile time
 RUN npm install
 
+ARG NODE_ENV
+RUN if [ "$NODE_ENV" = "development" ]; \
+    then npm install; \
+    else npm install --only=production; \
+    fi
+
 # COPY all files from source to destination
 COPY . .
 

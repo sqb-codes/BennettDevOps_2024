@@ -8,3 +8,15 @@ services:
       - PORT=3000
     # env_file:
     #   - ./.env
+
+# adding new service of mongo db
+  mongo:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    volumes:
+      - mongo-db:/data/db
+
+volumes:
+  mongo-db:
