@@ -51,3 +51,113 @@ For windows command prompt
 For windows powershell / mac / linux
 - docker run -v ${pwd}:/app -p 3000:3000 -d --name node-app docker-node-app
 
+Problem
+- if we delete node_modules from our working directory then it will be syncd with /app directory and delete node_modules from there as well
+
+Solution
+- Anonymous Solution
+- docker run -v ${pwd}:/app -v /app/node_modules -p 3000:3000 -d --name node-app docker-node-app
+
+
+Problem
+- If we do any change in /app directory then it will be reflected in our working directory
+
+Solution
+- Read only Mount volume
+- docker run -v ${pwd}:/app:ro -v /app/node_modules -p 3000:3000 -d --name node-app docker-node-app
+
+
+How to use Environemnt Variable ?
+- Send port number through Environemnt variable
+
+- docker run -v ${pwd}:/app:ro -v /app/node_modules --env PORT=4000 -p 3000:4000 -d --name node-app docker-node-app
+
+Now we want to send PORT number through .env file
+- docker run -v ${pwd}:/app:ro -v /app/node_modules --env-file ./.env -p 3000:4000 -d --name node-app docker-node-app
+
+
+How to handle volumes ?
+
+List all volumes
+- docker volume ls
+
+Delete unused volumes
+- docker volume prune
+
+Delete container + volume
+- docker rm node-app -fv
+
+
+Problem :
+- command is too large to remember
+- how we are going to handle multiple containers
+
+Solution
+- Docker Compose
+
+Run Docker Compose
+- docker-compose up -d
+
+Delete Docker Compose
+- docker-compose down
+- docker-compose down -v
+  = -v will delete unused anonymous volumes
+
+Re-build image while running docker compose
+- docker-compose up -d --build
+  - it will force build new image everytime
+
+
+Now we want to move from dev to prod Environemnt
+
+
+Run docker for dev envrionment
+- docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+- docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+  - forcefully build image...because docker-compose didn't pick changes
+
+
+Run docker for prod envrionment
+- docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+Remove docker for dev envrionment
+- docker-compose -f docker-compose.yml -f docker-compose.dev.yml down -v
+
+Remove docker for prod envrionment
+- docker-compose -f docker-compose.yml -f docker-compose.prod.yml down -v
+
+
+Now add a new service for mongo-db
+
+Now enter in mongo-db container
+- docker exec -it mongoContainer bash
+- cd bin
+- mongosh -u "username" -p "password"
+
+show databases
+- show dbs;
+
+create database
+- use db_name
+
+create collection
+- db.createCollection("collectionName")
+
+But when we build database and store data inside that then it will be removed once we remove container
+
+So the solution is to create a named volume
+
+Updated Command to Remove docker
+- docker-compose -f docker-compose.yml -f docker-compose.dev.yml down
+  - now we don't want to remove volume... so we delete -v flag
+
+
+Shortcut to enter in mongo db shell
+- docker exec -it mongoContainer /bin/mongosh -u "username" -p "password"
+
+Now let's connect mongo-db with Node...
+So we want to install mongoose
+To connect Node with mongo-db container we want IP address of mongo-db container
+
+- docker inspect containerName
