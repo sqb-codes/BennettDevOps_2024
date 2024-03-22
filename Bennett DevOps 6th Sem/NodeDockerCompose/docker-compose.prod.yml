@@ -2,6 +2,10 @@ version: '3'
 services:
   # image name
   node-app:
+    build: 
+      context: .
+      args:
+        - NODE_ENV=production
     environment:
       - NODE_ENV=production
     command: node app.js

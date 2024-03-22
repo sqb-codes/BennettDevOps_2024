@@ -2,6 +2,10 @@ version: '3'
 services:
   # image name
   node-app:
+    build: 
+      context: .
+      args:
+        - NODE_ENV=development
     volumes:
       - ./:/app:ro  # sync volumes
       - /app/node_modules  # anonymous volumes

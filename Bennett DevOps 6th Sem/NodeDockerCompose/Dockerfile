@@ -12,7 +12,15 @@ WORKDIR /app
 COPY package.json /app
 
 # it will install all dependencies
-RUN npm install
+# RUN npm install
+
+
+ARG NODE_ENV
+RUN if [ "$NODE_ENV" = "development" ]; \
+    then npm install; \
+    else npm install --only=production; \
+    fi
+
 
 # now copy all remaining files inside /app directory
 COPY . /app
