@@ -74,3 +74,37 @@ Run dev and prod commands
 Dev command : docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 Prod command : docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
+Dev command : docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+
+Remove docker compose container
+Dev command : docker-compose -f docker-compose.yml -f docker-compose.dev.yml down -v
+
+
+docker exec -it mongoContainerName bash
+- it will start mongo container 
+
+cd bin
+mongosh -u "root" -p "root"
+
+Shortcut to enter in mongo shell
+- docker exec -it mongoContainerName /bin/mongosh -u "root" -p "root"
+
+
+Now if we delete container then our database will also be deleted
+So the solution is to persist data using volumes
+
+Now we won't use -v flag while deleting container. Because we don't want to delete volumes that contains database
+
+Updated command to Remove docker compose container
+: docker-compose -f docker-compose.yml -f docker-compose.dev.yml down
+
+
+
+Install ping in bash
+- apt-get update -y
+- apt-get install -y iputils-ping
+
+
+
+
+
