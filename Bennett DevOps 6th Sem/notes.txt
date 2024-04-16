@@ -161,3 +161,76 @@ So we want to install mongoose
 To connect Node with mongo-db container we want IP address of mongo-db container
 
 - docker inspect containerName
+
+
+How to handle order of containers in docker ?
+- Add dependency in our service
+
+Run docker with no dependency
+- docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --no-deps node-app
+
+
+
+Use this code in nginx->default.conf
+
+server {
+    listen:80;
+
+    location/api {
+      // this will set request headers
+      // X-Real-IP is set to IP Address
+        proxy_set_header X-Real-IP $remote_addr;
+        
+        // X-Forwarded-For = header is set to original client IP
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        // 
+        proxy_set_header Host $http_host
+        proxy_pass http://node-app:3000;
+        proxy_redirect off;
+    }
+}
+
+
+
+Run docker for dev envrionment with 2 instances
+- docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --scale node-app=2
+
+
+1. Create EC2 Instance (Ubuntu)
+2. Install docker and docker-compose
+3. Push code on Git
+4. Pull code on EC2
+5. Do changes in docker-compose-prod.yml
+6. Create .env file on EC2
+  - vi .env
+  - press i to switch to insert mode
+  - then paste this code
+
+  NODE_ENV=development
+  MONGO_USER=root
+  MONGO_PASSWORD=root
+  MONGO_INITDB_ROOT_USERNAME=root
+  MONGO_INITDB_ROOT_PASSWORD=root
+
+  - press :wq
+
+7. Run docker-compose-prod on EC2
+8. Copy IP of EC2 and replace localhost in postman and test application
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
