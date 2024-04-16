@@ -1,5 +1,8 @@
 version: '3'
 services:
+  nginx:
+    ports:
+      - "3000:80"
   # image name
   node-app:
     build: 
@@ -11,4 +14,13 @@ services:
       - /app/node_modules  # anonymous volumes
     environment:
       - NODE_ENV=development
+      - MONGO_USER=root
+      - MONGO_PASSWORD=root
     command: npm run dev
+
+  # Adding new service for mongo
+  mongo:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
