@@ -12,18 +12,17 @@ services:
     #   - "3000:3000"
     environment:
       - PORT=3000
-    depends_on:
-      - mongo
+    # env_file:
+    #   - ./.env
 
-# Adding new service for mongo
+# adding new service of mongo db
   mongo:
     image: mongo
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
-    # Creat a named volume to store database...Otherwise database will be removed once we remove container
     volumes:
       - mongo-db:/data/db
-  
+
 volumes:
   mongo-db:
