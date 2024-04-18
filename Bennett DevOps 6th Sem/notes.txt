@@ -207,11 +207,11 @@ Run docker for dev envrionment with 2 instances
   - press i to switch to insert mode
   - then paste this code
 
-  NODE_ENV=development
-  MONGO_USER=root
-  MONGO_PASSWORD=root
-  MONGO_INITDB_ROOT_USERNAME=root
-  MONGO_INITDB_ROOT_PASSWORD=root
+export NODE_ENV=production
+export MONGO_USER=root
+export MONGO_PASSWORD=root
+export MONGO_INITDB_ROOT_USERNAME=root
+export MONGO_INITDB_ROOT_PASSWORD=root
 
   - press :wq
 
@@ -219,18 +219,35 @@ Run docker for dev envrionment with 2 instances
 8. Copy IP of EC2 and replace localhost in postman and test application
 
 
+Install Docker on EC2
+sudo apt-get update
+sudo apt-get install docker.io -y
+sudo usermod -aG docker $USER
+newgrp docker
+sudo chmod 777 /var/run/docker.sock
 
 
+Install Docker-Compose
+- sudo apt-get install docker-compose
 
 
+Push Code on Git
+git add .
+git commit -m "Docker CRUD"
+git branch -M main
+git remote add origin URL
+git push -u origin main
 
 
+Push changes only
+git add .
+git commit -m "Docker CRUD"
+git push
 
 
+Pull code on EC2
 
 
-
-
-
-
+Run docker compose on EC2
+- docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
