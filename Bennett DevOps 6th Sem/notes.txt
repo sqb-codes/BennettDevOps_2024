@@ -1,253 +1,252 @@
-1. Create node js project
-  - npm init
-  - npm init -y
+1. Create node project
+  -> npm init -y
 
-2. Install express
-  - npm install express --save
-
-3. Start node server
-  - node app.js
-
-4. Show all process in docker
-  -> docker ps -a
-
-5. Show all running process in docker
-  -> docker ps
-
-6. Build image
+2. Build Image using docker
   -> docker build .
-- Build image with a name
-  -> docker build -t docker-node-app .
+  -> docker build -t node-app .
+  -t stands for tag
 
-7. Remove image
-  -> docker image rm imageName
+3. Show process
+  -> docker ps
+    - show running process
+  -> docker ps -a
+    - show all process
 
-8. Build and Run container
-  -> docker run -p 3000:3000 --name node-app docker-node-app
-  - -p for port number
-  - node-app container : name
-  - docker-node-app : image name
+4. Show images
+  -> docker image ls
 
-  -> docker run -d -p 3000:3000 --name node-app docker-node-app
-  - -d : detached mode
+5. Run container
+  -> docker run -p 3000:3000 --name node-app node-app-img
+  -> docker run -d -p 3000:3000 --name node-app node-app-img
+  -d stands for detach mode. Release the terminal after running container
 
-  -> docker stop container_name
-  - to stop the docker
+6. Remove container
+  -> docker rm node-app
+  -> docker rm node-app -f
+  -f stands for force
 
-9. Remove container
-  -> docker rm container_name
-  -> docker rm container_name -f
-  - -f is for forcefully removing container
-
-10. Get inside docker working directory
+7. Show docker working directory
   -> docker exec -it node-app bash
 
+8. Bind Mount
+  
+  For windows command prompt
+  -> docker run -d -v %cd%:/app -p 3000:3000 --name node-app node-app-img
 
-Bind Mount volume and Sync code
+  For windows powershell / mac / linux
+  -> docker run -d -v ${pwd}:/app -p 3000:3000 --name node-app node-app-img
 
-For windows command prompt
-- docker run -v %cd%:/app -p 3000:3000 -d --name node-app docker-node-app
+- If we delete folder like node_modules from our directory
+then it will delete also from /app
 
-For windows powershell / mac / linux
-- docker run -v ${pwd}:/app -p 3000:3000 -d --name node-app docker-node-app
+Anonymous volumes
 
-Problem
-- if we delete node_modules from our working directory then it will be syncd with /app directory and delete node_modules from there as well
+-> docker run -d -v ${pwd}:/app -v /app/node_modules -p 3000:3000 --name node-app node-app-img
 
-Solution
-- Anonymous Solution
-- docker run -v ${pwd}:/app -v /app/node_modules -p 3000:3000 -d --name node-app docker-node-app
+- Now we want to make read only volumes
 
+Read only Mount volumes
+-> docker run -d -v ${pwd}:/app:ro -v /app/node_modules -p 3000:3000 --name node-app node-app-img
 
-Problem
-- If we do any change in /app directory then it will be reflected in our working directory
+Remove volume + container
+-> docker rm node-app -fv
 
-Solution
-- Read only Mount volume
-- docker run -v ${pwd}:/app:ro -v /app/node_modules -p 3000:3000 -d --name node-app docker-node-app
+Passing envrionment variable
 
+-> docker run -d -v ${pwd}:/app:ro -v /app/node_modules --env PORT=4000 -p 3000:4000 --name node-app node-app-img
 
-How to use Environemnt Variable ?
-- Send port number through Environemnt variable
+Use .env file instead of passing envrionment variable in command
 
-- docker run -v ${pwd}:/app:ro -v /app/node_modules --env PORT=4000 -p 3000:4000 -d --name node-app docker-node-app
+-> docker run -d -v ${pwd}:/app:ro -v /app/node_modules --env-file ./.env -p 3000:4000 --name node-app node-app-img
 
-Now we want to send PORT number through .env file
-- docker run -v ${pwd}:/app:ro -v /app/node_modules --env-file ./.env -p 3000:4000 -d --name node-app docker-node-app
-
-
-How to handle volumes ?
-
-List all volumes
-- docker volume ls
-
-Delete unused volumes
-- docker volume prune
-
-Delete container + volume
-- docker rm node-app -fv
-
-
-Problem :
-- command is too large to remember
-- how we are going to handle multiple containers
-
-Solution
-- Docker Compose
 
 Run Docker Compose
 - docker-compose up -d
 
-Delete Docker Compose
+Remove Docker Compose
 - docker-compose down
 - docker-compose down -v
-  = -v will delete unused anonymous volumes
 
-Re-build image while running docker compose
+Forcefully creates new image
 - docker-compose up -d --build
-  - it will force build new image everytime
+
+Run dev and prod commands
+Dev command : docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+Prod command : docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+Dev command : docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+
+Remove docker compose container
+Dev command : docker-compose -f docker-compose.yml -f docker-compose.dev.yml down -v
 
 
-Now we want to move from dev to prod Environemnt
+docker exec -it mongoContainerName bash
+- it will start mongo container 
+
+cd bin
+mongosh -u "root" -p "root"
+
+Shortcut to enter in mongo shell
+- docker exec -it mongoContainerName /bin/mongosh -u "root" -p "root"
 
 
-Run docker for dev envrionment
-- docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+Now if we delete container then our database will also be deleted
+So the solution is to persist data using volumes
 
-- docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
-  - forcefully build image...because docker-compose didn't pick changes
+Now we won't use -v flag while deleting container. Because we don't want to delete volumes that contains database
 
-
-Run docker for prod envrionment
-- docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-
-Remove docker for dev envrionment
-- docker-compose -f docker-compose.yml -f docker-compose.dev.yml down -v
-
-Remove docker for prod envrionment
-- docker-compose -f docker-compose.yml -f docker-compose.prod.yml down -v
+Updated command to Remove docker compose container
+: docker-compose -f docker-compose.yml -f docker-compose.dev.yml down
 
 
-Now add a new service for mongo-db
+Install ping in bash
+- apt-get update -y
+- apt-get install -y iputils-ping
 
-Now enter in mongo-db container
-- docker exec -it mongoContainer bash
-- cd bin
-- mongosh -u "username" -p "password"
+Now Build CRUD operations and test them using Postman
 
-show databases
-- show dbs;
+Now we are going to add nginx server
 
-create database
-- use db_name
-
-create collection
-- db.createCollection("collectionName")
-
-But when we build database and store data inside that then it will be removed once we remove container
-
-So the solution is to create a named volume
-
-Updated Command to Remove docker
-- docker-compose -f docker-compose.yml -f docker-compose.dev.yml down
-  - now we don't want to remove volume... so we delete -v flag
-
-
-Shortcut to enter in mongo db shell
-- docker exec -it mongoContainer /bin/mongosh -u "username" -p "password"
-
-Now let's connect mongo-db with Node...
-So we want to install mongoose
-To connect Node with mongo-db container we want IP address of mongo-db container
-
-- docker inspect containerName
-
-
-How to handle order of containers in docker ?
-- Add dependency in our service
-
-Run docker with no dependency
-- docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --no-deps node-app
-
-
-
-Use this code in nginx->default.conf
+Now after adding default.conf, we will scale up node-app instances
 
 server {
-    listen:80;
+    listen 80;
 
-    location/api {
-      // this will set request headers
-      // X-Real-IP is set to IP Address
+    // location block is used to configure how nginx should handle request to the root of the server
+    location /api {
+
+      // X-Real-IP - header is set to the IP address of the client making the request $remote_addr
+      // X-Forwarded-For - header is set to the original client IP address...especially useful when request passes through proxies
         proxy_set_header X-Real-IP $remote_addr;
-        
-        // X-Forwarded-For = header is set to original client IP
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
-        // 
-        proxy_set_header Host $http_host
+        // Host - set Host header value of $http_post variable and add an additional header X-NginX-Proxy
+        // Host - header specifies the hostname of server
+        proxy_set_header Host $http_host;
+        proxy_set_header X-NginX-Proxy true;
+
+        // this specifies the backend server to which nginx should proxy request
         proxy_pass http://node-app:3000;
+
+        // disables automatic redirection of the proxy_pass, because by default nginx rewrites the location and refresh response headers returned by the proxied server...
         proxy_redirect off;
+
     }
 }
 
+It will create 2 instances of node-app
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --scale node-app=2
 
 
-Run docker for dev envrionment with 2 instances
-- docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --scale node-app=2
-
-
-1. Create EC2 Instance (Ubuntu)
+How production will work ?
+Phase 1
+1. Create EC2 instance
 2. Install docker and docker-compose
-3. Push code on Git
-4. Pull code on EC2
-5. Do changes in docker-compose-prod.yml
-6. Create .env file on EC2
-  - vi .env
-  - press i to switch to insert mode
-  - then paste this code
+3. Set envrionment variables on EC2
+4. Push code on git
+5. Pull code from git on EC2
+6. Run + Build Docker Compose
 
+Phase 2
+7. Introduce Docker Hub and push image on docker hub
+8. Pull image on EC2
+
+Phase 3
+9. Introduce Watchtower - Automate the pull operations on EC2
+
+Phase 4 - Sonarqube + Trivy
+
+Phase 5 - Pipeline using Jenkins
+
+
+==========================
+EC2 Commands
+sudo apt-get update
+
+Install Docker
+sudo apt-get install docker.io -y
+sudo usermod -aG docker $USER
+newgrp docker
+sudo chmod 777 /var/run/docker.sock
+
+Install Docker-Compose
+sudo apt-get install docker-compose
+
+Push Code on Git
+git init
+git add .
+git commit -m "crud app"
+git branch -M main
+git remote add origin URL
+git push -u origin main
+
+
+Setup envrionment variables on EC2
+Command : vi .env
+- it will create .env file to store our envrionment variables
+
+NODE_ENV=production
+MONGO_USER=root
+MONGO_PASSWORD=root
+MONGO_INITDB_ROOT_USERNAME=root
+MONGO_INITDB_ROOT_PASSWORD=root
+
+Now open .profile and add this command in last
+Command : vi .profile
+set -o allexport; source /root/.env; set +o allexport
+
+
+Otherwise export one by one
 export NODE_ENV=production
 export MONGO_USER=root
 export MONGO_PASSWORD=root
 export MONGO_INITDB_ROOT_USERNAME=root
 export MONGO_INITDB_ROOT_PASSWORD=root
 
-  - press :wq
-
-7. Run docker-compose-prod on EC2
-8. Copy IP of EC2 and replace localhost in postman and test application
 
 
-Install Docker on EC2
-sudo apt-get update
-sudo apt-get install docker.io -y
-sudo usermod -aG docker $USER
-newgrp docker
-sudo chmod 777 /var/run/docker.sock
+Now run docker prod on EC2
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+Copy IP of EC2 and replace localhost in Postman
+
+===== End of Phase-1 =====
 
 
-Install Docker-Compose
-- sudo apt-get install docker-compose
+Phase 2
+Introduce Docker Hub and push image on docker hub
+
+Command - docker image tag 03-expresscrud_docker-node-app ravisqb/crud-docker
+Command - docker push ravisqb/crud-docker
+
+Change image name in docker-compose.yml
+  node-app:
+    build: .
+    image: ravisqb/crud-docker
+
+Now pull docker image on EC2
+Command - docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull
+
+===== End of Phase-2 =====
+
+Phase 3
+Introduce Watchtower - Automate the pull operations on EC2
+
+docker run -d --name watchtower -e WATCHTOWER_TRACE=true -e WATCHTOWER_DEBUG=true -e WATCHTOWER_POLL_INTERVAL=20 -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower
 
 
-Push Code on Git
-git add .
-git commit -m "Docker CRUD"
-git branch -M main
-git remote add origin URL
-git push -u origin main
+===== End of Phase-3 =====
 
 
-Push changes only
-git add .
-git commit -m "Docker CRUD"
-git push
+Phase 4 - Sonarqube + Trivy
+1. Enable ports for Jenkins, Sonarqube
 
+Sonarqube
+- tool used for continuous inspecting the code quality
+- used to inspect security of code
 
-Pull code on EC2
+Install Sonarqube
 
+docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
 
-Run docker compose on EC2
-- docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
