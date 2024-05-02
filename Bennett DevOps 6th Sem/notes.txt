@@ -264,3 +264,176 @@ sudo apt-get install trivy
 to scan image using trivy
 Scan the current file system - trivy fs .
 Scan the container image - trivy image <imageid>
+
+=====End of Phase 4=====
+
+Phase 5 - Pipeline using Jenkins
+- pre-requisite to install jenkins
+  - install java
+
+Commands to install Java
+
+sudo apt update
+sudo apt install openjdk-17-jre
+java -version
+
+Install Jenkins
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt-get update
+
+sudo apt-get install jenkins
+
+sudo systemctl start jenkins.service
+
+sudo systemctl status jenkins
+
+Once jenkins is started : copy public IP and paste in browser
+PublicIP:8080
+
+Copy path from jenkins and go back to EC2
+EC2 - sudo cat <path>
+Copy and paste password in jenkins
+
+
+Install Necessary Plugins in Jenkins:
+Goto Manage Jenkins →Plugins → Available Plugins →
+
+Install below plugins
+1 Eclipse Temurin Installer (Install without restart)
+2 SonarQube Scanner (Install without restart)
+3 NodeJs Plugin (Install Without restart)
+4 Email Extension Plugin
+
+
+Configure Java and Nodejs in Global Tool Configuration
+
+Goto Manage Jenkins → Tools → Install JDK(17) and NodeJs(22)→ Click on Apply and Save
+
+SonarQube with Jenkins
+
+Open SonarQube
+Administration -> Security -> Users -> Update Token
+Copy token and go back to Jenkins
+
+Create the token
+Goto Jenkins Dashboard → Manage Jenkins → Credentials → Add Credentials -> Select Secret Text -> Paste token
+ID - Sonar-token
+Description - Sonar token
+
+After adding sonar token Click on Create
+
+Once done you'll be able to see Sonar-token in Global Credentials
+
+We will install a sonar scanner in the tools.
+Manage genkins -> System -> Search SonarQube
+Name - sonar-server
+URL - EC2 IP Address with PORT 9000
+Server authentication token - Sonar-token
+
+Apply and Save
+
+Install Sonar Scanner
+Go to Manage Jenkins -> Tools -> Sonarqube Scanner
+Name - sonar-scanner
+Leave version as it is
+
+Apply and Save
+
+
+Configure CI/CD Pipeline in Jenkins:
+
+To Create pipeline
+Click on New Item -> Give Name -> Select pipeline -> Ok
+Now go to pipeline section and  Put the pipeline script and apply and save
+
+Click Build Now to run the pipeline
+
+Jenkins Pipeline
+pipeline {
+    agent any
+
+    tools {
+        jdk 'jdk17'
+        nodejs 'node22'
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
+    stages {
+        stage('clean workspace'){
+            steps {
+                cleanWs()
+            }    
+        }
+        stage('Checkout from GIT') {
+            steps {
+                git branch: 'main', url: 'https://github.com/sqb-codes/crud-app.git'
+            }
+        }
+        stage('Sonarqube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    sh "$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=CRUD -Dsonar.projectKey=CRUD"
+                }
+            }
+        }
+        stage('quality gate') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'SonarScanner'
+                }
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+    }
+
+}
+
+
+Install Dependency-Check and Docker Tools in Jenkins
+
+Install Dependency-Check Plugin:
+Go to "Dashboard" in your Jenkins web interface.
+
+Navigate to "Manage Jenkins" → "Manage Plugins."
+Click on the "Available" tab and search for "OWASP Dependency-Check."
+Check the checkbox for "OWASP Dependency-Check" and click on the "Install without restart" button.
+
+Configure Dependency-Check Tool:
+After installing the Dependency-Check plugin, you need to configure the tool.
+Go to "Dashboard" → "Manage Jenkins" → "Global Tool Configuration."
+Find the section for "OWASP Dependency-Check."
+Add the tool's name, e.g., "DP-Check."
+Save your settings.
+
+Install Docker Tools and Docker Plugins:
+Go to "Dashboard" in your Jenkins web interface.
+Navigate to "Manage Jenkins" → "Manage Plugins."
+Click on the "Available" tab and search for "Docker."
+
+Check the following Docker-related plugins:
+Docker
+Docker Commons
+Docker Pipeline
+Docker API
+docker-build-step
+Click on the "Install without restart" button to install these plugins.
+
+Add DockerHub Credentials:
+To securely handle DockerHub credentials in your Jenkins pipeline, follow these steps:
+Go to "Dashboard" → "Manage Jenkins" → "Manage Credentials."
+Click on "System" and then "Global credentials (unrestricted)."
+Click on "Add Credentials" on the left side.
+Choose "Secret text" as the kind of credentials.
+
+Enter your DockerHub credentials (Username and Password) and give the credentials an ID (e.g., "docker").
+Click "OK" to save your DockerHub credentials.
